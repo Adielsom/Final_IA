@@ -36,3 +36,34 @@ def plot_training_history(history):
 
     plt.tight_layout()
     plt.show()
+
+
+----------------------
+
+import cv2
+import numpy as np
+from tqdm import tqdm # Para uma barra de progresso visual
+
+def load_data_from_paths(image_paths, mask_paths, img_size=(128, 128)):
+    """Carrega imagens e máscaras a partir de listas de caminhos."""
+    images = []
+    masks = []
+
+    # A barra de progresso (tqdm) é útil para datasets grandes
+    for img_path, mask_path in tqdm(zip(image_paths, mask_paths), total=len(image_paths), desc="Carregando dados"):
+        # Carregar imagem
+        img = cv2.imread(img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, img_size)
+        img = img / 255.0  # Normalizar
+
+        # Carregar máscara
+        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        mask = cv2.resize(mask, img_size)
+        mask = mask / 255.0  # Normalizar
+        mask = np.expand_dims(mask, axis=-1) # Adicionar dimensão de canal -> (128, 128, 1)
+
+        images.append(img)
+        masks.append(mask)
+
+    return np.array(images), np.array(masks)
